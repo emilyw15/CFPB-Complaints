@@ -9,7 +9,6 @@ const xAxis = d3.axisBottom()
 
 const yAxis = d3.axisLeft()
 .scale(yScale)
-.ticks(5)
 .tickPadding(15);
 
 const colorLegend = d3.legendColor()
@@ -36,7 +35,9 @@ export default function (svg, props) {
 
   const areaColumn = colorValue;
 
-  svg.select("svg")
+  var parseTime = d3.timeParse("%Y-%m");
+
+  //svg.select("svg")
 
   const width = svg.attr('width');
   const height = svg.attr('height');
@@ -70,30 +71,47 @@ export default function (svg, props) {
   xAxis.tickSize(-innerHeight);
   yAxis.tickSize(-innerWidth);
 
+  data1.forEach(function(d) {
+    d.date = parseTime(d.date);
+  })
+
+  var dataset = data1.map(function(d){ 
+  var ob = {date: d.date};
+    var i = 0;
+    for (; i < d.product.length; i++){
+    ob[d.product[i].key] = d.product[i].value;
+  }
+
+  return ob; 
+});
+
   const keys = ["Bank account or service","Consumer Loan","Credit card","Credit reporting","Debt collection","Money transfers",
   "Mortgage","Other financial service","Payday loan","Prepaid card","Student loan","Virtual currency"];
+
+  for(var j=0;j<dataset.length;j++){
+    for(var k in keys){
+      if (!dataset[j].hasOwnProperty(keys[k])) {
+        dataset[j][keys[k]] = 0;
+      }
+    }
+  };
 
   const stack = d3.stack()
   .keys(keys);
 
   const area = d3.area()
-  .x(function(d) { return xScale(xValue); })
+  .x(function(d) { return xScale(d.data.date); })
   .y0(function(d) { return yScale(d[0]); })
   .y1(function(d) { return yScale(d[1]); });
 
-  const nested = d3.nest()
-    .key(areaColumn)
-    .entries(data1);
-
-  console.log(nested)
-
-  const layers = stack(nested);
+  console.log(dataset)
+  const layers = stack(dataset);
 
   console.log(keys);
   console.log(layers);
 
   xScale
-    .domain(d3.extent(data1,xValue))
+    .domain(d3.extent(dataset, function(d) { return d.date;}))
     .range([0, innerWidth]);
 
   yScale.domain([
@@ -104,16 +122,21 @@ export default function (svg, props) {
               return d3.max(series, function (d) { return d[1]; });
             })
           ])
-    .range([innerHeight, 0]);
+    .range([innerHeight, 0])
+    .nice();
 
-  colorScale.domain(d3.range(keys.length));
+  colorScale.domain(keys);
 
-  var paths = g.selectAll(".chart-area").data(layers);
-  paths.enter().append("path").attr("class",".chart-area");
-  paths.exit().remove();
-  paths
-    .attr("d", function (d){ return area(d.values); })
-    .attr("fill", function (d){ return colorScale(d.key); });
+  var layer = g.selectAll(".layer")
+    .data(layers)
+    .enter().append("g")
+    .attr("class", "layer");
+
+  layer.append("path")
+      .attr("class", "area")
+      .style("fill", function(d) { return colorScale(d.key); })
+      .attr("d", area);
+
 
   xAxisG.call(xAxis);
   yAxisG.call(yAxis);

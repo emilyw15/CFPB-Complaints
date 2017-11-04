@@ -35,7 +35,7 @@ export default function (svg, props) {
 
   const layerColumn = colorValue;
   
-  svg = d3.select('svg');
+  //svg = d3.select('svg');
   const width = svg.attr('width');
   const height = svg.attr('height');
   const innerWidth = width - margin.left - margin.right;
@@ -47,7 +47,8 @@ export default function (svg, props) {
   const xAxisG = g.append('g').attr('transform', `translate(0, ${innerHeight})`);
   const yAxisG = g.append('g');
 
-  g.append("g");
+  //g.append("g");
+  const barsG = g.append('g')
 
   xAxisG.append('text')
     .attr('class', 'axis-label')
@@ -69,7 +70,7 @@ export default function (svg, props) {
 
 
   var dataset = data2.map(function(d){ 
-  var ob = {};
+  var ob = { issue: d.issue};
     var i = 0;
     for (; i < d.product.length; i++){
     ob[d.product[i].key] = d.product[i].value;
@@ -99,7 +100,8 @@ export default function (svg, props) {
   console.log(stacked)
 
   xScale
-    .domain(data2.map(function (d) { return d.issue; })).range([0, innerWidth]);
+    .domain(data2.map(function (d) { return d.issue; }))
+    .range([0, innerWidth]);
 
   yScale
     .domain([0, d3.max(stacked.map(function (d){
@@ -116,18 +118,18 @@ export default function (svg, props) {
 
   yAxisG.call(yAxis);
 
-  var groups = g.selectAll('g')
+  var groups = barsG.selectAll('g')
     .data(stacked)
     .enter()
     .append("g")
-    .style('fill', function(d,i) { return colorScale(i); });
+    .style('fill', function(d) { return colorScale(d.key); });
     
   var rects = groups.selectAll('rect')
     .data(function (d) { return d; })
     .enter()
     .append("rect")
     .attr('width', xScale.bandwidth())
-    .attr('x', function(d,i){return xScale(i);})
+    .attr('x', function(d){return xScale(d.data.issue);})
     .attr('y', function (d) { return yScale(d[1]); })
     .attr('height', function (d) { return yScale(d[0]) - yScale(d[1]); });
 

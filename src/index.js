@@ -13,7 +13,7 @@ const visualization = d3.select('#visualization');
 const visualizationDiv = visualization.node();
 const svg = visualization.select('svg');
 
-const parseDate = d3.timeFormat("%Y-%m-%d");
+const parseDate = d3.timeFormat("%Y-%m");
 
 const row = d => {
 d.date = new Date(d.date);
@@ -27,10 +27,16 @@ return d;
 d3.csv('data/cfpb_complaints3.csv', row, data => {
 
   var data1 = d3.nest()
-      .key(function(d) {return parseDate(d.date);})
+      .key(function(d) {return parseDate(new Date(d.date));})
       .key(function(d) {return d.product;})
-      .rollup(function(v) {return {"prod_count": d3.sum(v,function(d) {return d.count;})}})
-      .entries(data);
+      .rollup(function(v) {return d3.sum(v,function(d) {return d.count;})})
+      .entries(data)
+      .map(function(group){
+      return {
+        date: group.key,
+        product: group.values,
+      }
+    });;
 
   var data2 = d3.nest()
     .key(function(d) {return d.issues;})
@@ -56,20 +62,9 @@ d3.csv('data/cfpb_complaints3.csv', row, data => {
       .attr('width', visualizationDiv.clientWidth)
       .attr('height', visualizationDiv.clientHeight);
 
-    // Render the scatter plot.
-    // stacked_area(svg, {
-    //   data1,
-    //   xValue,
-    //   xLabel,
-    //   yValue,
-    //   yLabel,
-    //   colorValue,
-    //   colorLabel,
-    //   margin
-    // });
-
-    issue_barChart(svg, {
-      data2,
+    // // Render the scatter plot.
+    stacked_area(svg, {
+      data1,
       xValue,
       xLabel,
       yValue,
@@ -78,6 +73,17 @@ d3.csv('data/cfpb_complaints3.csv', row, data => {
       colorLabel,
       margin
     });
+
+  //   issue_barChart(svg, {
+  //     data2,
+  //     xValue,
+  //     xLabel,
+  //     yValue,
+  //     yLabel,
+  //     colorValue,
+  //     colorLabel,
+  //     margin
+  //   });
   }
 
   // Draw for the first time to initialize.
