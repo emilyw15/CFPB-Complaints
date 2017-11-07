@@ -70,45 +70,116 @@
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__stacked_area__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__issue_barChart__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__company_barChart__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__state_barChart__ = __webpack_require__(4);
 
 
-const xValue = "date";
-const xLabel = 'Time';
+
+
+
+const xValue = d => "issues";
+const xLabel = 'Issue';
 const yValue = "prod_count";
 const yLabel = 'Complaint Count';
-const colorValue = "product";
-const colorLabel = 'product';
+const colorValue = 'product';
+const colorLabel = 'Products';
 const margin = { left: 120, right: 300, top: 20, bottom: 120 };
 
 const visualization = d3.select('#visualization');
 const visualizationDiv = visualization.node();
-const svg = visualization.select('svg');
+const areaChart = visualization.select('svg');
+
+const visualization2 = d3.select('#visualization2');
+const visualizationDiv2 = visualization2.node();
+const companyBars = visualization2.select('svg');
+
+const visualization3 = d3.select('#visualization3');
+const visualizationDiv3 = visualization3.node();
+const issueBars = visualization3.select('svg');
+
+const visualization4 = d3.select('#visualization4');
+const visualizationDiv4 = visualization4.node();
+const stateBars = visualization4.select('svg');
+
+
+const parseDate = d3.timeFormat("%Y-%m");
 
 const row = d => {
 d.date = new Date(d.date);
-d.product = +d.product;
+d.product = d.product;
+d.issues = d.issues;
 d.prod_count = +d.prod_count;
+
 return d;
 };
 
-d3.csv('data/cfpb_complaints2.csv', row, data => {
+d3.csv('data/cfpb_complaints4.csv', row, data => {
+
+  var data1 = d3.nest()
+      .key(function(d) {return parseDate(new Date(d.date));})
+      .key(function(d) {return d.product;})
+      .rollup(function(v) {return d3.sum(v,function(d) {return d.count;})})
+      .entries(data)
+      .map(function(group){
+      return {
+        date: group.key,
+        product: group.values,
+      }
+    });
+
+  var data2 = d3.nest()
+    .key(function(d) {return d.issues;})
+    .key(function(d){return d.product;})
+    .rollup(function(v) {return  d3.sum(v,function(d) {return d.count;})})
+    .entries(data)
+    .map(function(group){
+      return {
+        issue: group.key,
+        product: group.values,
+      }
+    });
+
+  var data3 = d3.nest()
+  .key(function(d) {return d.company;})
+  .key(function(d){return d.product;})
+  .rollup(function(v) {return  d3.sum(v,function(d) {return d.count;})})
+  .entries(data)
+  .map(function(group){
+    return {
+      company: group.key,
+      product: group.values,
+    }
+  });
+
+  var data4 = d3.nest()
+  .key(function(d) {return d.state;})
+  .key(function(d){return d.product;})
+  .rollup(function(v) {return  d3.sum(v,function(d) {return d.count;})})
+  .entries(data)
+  .map(function(group){
+    return {
+      state: group.key,
+      product: group.values,
+    }
+  });
+
+
+
+  //console.log(data1)
+  //console.log(data2)
 
   const render = () => {
 
-    data = d3.nest()
-      .key(function(d) {return d.date;})
-      .key(function(d) {return d.product;})
-      .rollup(function(v) {return {"prod_count": d3.sum(v,function(d) {return d.count;})}})
-      .entries(data);
 
     // Extract the width and height that was computed by CSS.
-    svg
+  areaChart
       .attr('width', visualizationDiv.clientWidth)
       .attr('height', visualizationDiv.clientHeight);
 
-    // Render the scatter plot.
-    Object(__WEBPACK_IMPORTED_MODULE_0__stacked_area__["a" /* default */])(svg, {
-      data,
+    // // Render the scatter plot.
+    Object(__WEBPACK_IMPORTED_MODULE_0__stacked_area__["a" /* default */])(areaChart, {
+      data1,
       xValue,
       xLabel,
       yValue,
@@ -117,13 +188,59 @@ d3.csv('data/cfpb_complaints2.csv', row, data => {
       colorLabel,
       margin
     });
-  }
+
+    issueBars
+      .attr('width', visualizationDiv3.clientWidth)
+      .attr('height', visualizationDiv3.clientHeight);
+
+    Object(__WEBPACK_IMPORTED_MODULE_1__issue_barChart__["a" /* default */])(issueBars, {
+      data2,
+      xValue,
+      xLabel,
+      yValue,
+      yLabel,
+      colorValue,
+      colorLabel,
+      margin
+    });
+
+  
+
+  companyBars
+      .attr('width', visualizationDiv2.clientWidth)
+      .attr('height', visualizationDiv2.clientHeight);
+  Object(__WEBPACK_IMPORTED_MODULE_2__company_barChart__["a" /* default */])(companyBars, {
+      data3,
+      xValue,
+      xLabel,
+      yValue,
+      yLabel,
+      colorValue,
+      colorLabel,
+      margin
+    });
+
+  stateBars
+      .attr('width', visualizationDiv4.clientWidth)
+      .attr('height', visualizationDiv4.clientHeight);
+  Object(__WEBPACK_IMPORTED_MODULE_3__state_barChart__["a" /* default */])(stateBars, {
+      data4,
+      xValue,
+      xLabel,
+      yValue,
+      yLabel,
+      colorValue,
+      colorLabel,
+      margin
+    });
+  };
 
   // Draw for the first time to initialize.
   render();
 
   // Redraw based on the new size whenever the browser window is resized.
-  //window.addEventListener('resize', render);
+  window.addEventListener('resize', render);
+
 });
 
 
@@ -133,33 +250,31 @@ d3.csv('data/cfpb_complaints2.csv', row, data => {
 
 "use strict";
 
-var xScale = d3.scaleTime().range([0, innerWidth]);
-var yScale = d3.scaleLinear().range([innerHeight, 0]);
-var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+const xScale = d3.scaleTime();
+const yScale = d3.scaleLinear();
+const colorScale = d3.scaleOrdinal(d3.schemeCategory20);
 
-var xAxis = d3.axisBottom()
+const xAxis = d3.axisBottom()
 .scale(xScale)
-.tickPadding(15)
+.tickPadding(15);
 
-var yAxis = d3.axisLeft()
+const yAxis = d3.axisLeft()
 .scale(yScale)
-.ticks(5)
-.tickPadding(15)
+.tickPadding(15);
 
-var colorLegend = d3.legendColor()
+const colorLegend = d3.legendColor()
 .scale(colorScale)
 .shapePadding(3)
 .shapeWidth(15)
 .shapeHeight(15)
-.labelOffset(4)
-.ascending(true);
+.labelOffset(4);
 
-var xAxisLabelOffset = 48;
-var yAxisLabelOffset = 60;
+const xAxisLabelOffset = 48;
+const yAxisLabelOffset = 60;
 
 /* harmony default export */ __webpack_exports__["a"] = (function (svg, props) {
   const { 
-    data,
+    data1,
     xValue,
     xLabel,
     yValue,
@@ -169,85 +284,804 @@ var yAxisLabelOffset = 60;
     margin
   } = props;
 
-  var areaColumn = colorValue;
+  svg.selectAll("*").remove();
+  const areaColumn = colorValue;
+
+  var parseTime = d3.timeParse("%Y-%m");
+
+  data1.forEach(function(d) {
+    if (typeof(d.date)!='object'){
+      d.date = parseTime(d.date);
+    }
+  });
 
   const width = svg.attr('width');
   const height = svg.attr('height');
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
-  var svg = d3.select("body").append("svg")
-  .attr("width", outerWidth)
-  .attr("height", outerHeight);
-  var g = svg.append("g")
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  let g = svg.selectAll('.container').data([null]);
+  const gEnter = g.enter().append('g').attr('class','container');
+  g = gEnter
+    .merge(g)
+      .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  var xAxisG = g.append("g")
-  .attr("class", "x axis")
-  .attr("transform", "translate(0," + innerHeight + ")")
-  var xAxisLabel = xAxisG.append("text")
-  .style("text-anchor", "middle")
-  .attr("transform", "translate(" + (innerWidth / 2) + "," + xAxisLabelOffset + ")")
-  .attr("class", "label")
-  .text(xLabel);
 
-  var yAxisG = g.append("g")
-  .attr("class", "y axis");
-  var yAxisLabel = yAxisG.append("text")
-  .style("text-anchor", "middle")
-  .attr("transform", "translate(-" + yAxisLabelOffset + "," + (innerHeight / 2) + ") rotate(-90)")
-  .attr("class", "label")
-  .text(yLabel);
+  // var g = svg.append("g")
+  // .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  var colorLegendG = g.append("g")
-  .attr("class", "color-legend")
-  .attr("transform", "translate(16, 2)");
+  const xAxisGEnter = gEnter.append('g').attr('class','x-axis');
+  const xAxisG = xAxisGEnter
+    .merge(g.select('.x-axis'))
+      .attr("transform", `translate(0, ${innerHeight})`);
+
+  const yAxisGEnter = gEnter.append('g').attr('class','y-axis');
+  const yAxisG = yAxisGEnter.merge(g.select('.y-axis'));
+
+
+  const colorLegendGEnter = gEnter.append('g').attr('class', 'legend');
+  const colorLegendG = colorLegendGEnter
+    .merge(g.select('.legend'))
+      .attr('transform', `translate(${innerWidth + 60}, 50)`);
+
+  var marksG = g.append('g');
+
+  xAxisGEnter
+  .append('text')
+    .attr('class', 'axis-label')
+    .attr('y', 55)
+  .merge(xAxisG.select('.axis-label'))
+    .attr('x', innerWidth / 2)
+    .text("Date");
+
+  yAxisGEnter
+    .append('text')
+      .attr('class', 'axis-label')
+      .attr('y', -60)
+      .style('text-anchor', 'middle')
+    .merge(yAxisG.select('.axis-label'))
+      .attr('x', -innerHeight / 2)
+      .attr('transform', `rotate(-90)`)
+      .text(yLabel);
+
+  colorLegendGEnter
+    .append('text')
+      .attr('class', 'legend-label')
+      .attr('x', -30)
+      .attr('y', -40)
+    .merge(colorLegendG.select('legend-label'));
 
   xAxis.tickSize(-innerHeight);
   yAxis.tickSize(-innerWidth);
+  var dataset = data1.map(function(d){ 
+  var ob = {date: d.date};
+    var i = 0;
+    for (; i < d.product.length; i++){
+    ob[d.product[i].key] = d.product[i].value;
+  }
 
-  var stack = d3.stack()
-  .y(function (d){ return d[yValue]; })
-  .values(function (d){ return d.values; });
+  return ob; 
+});
 
-  var area = d3.area()
-  .x(function(d) { return xScale(d[xValue]); })
-  .y0(function(d) { return yScale(d.y0); })
-  .y1(function(d) { return yScale(d.y0 + d.y); });
+  const keys = ["Bank account or service","Consumer Loan","Credit card","Credit reporting","Debt collection","Money transfers",
+  "Mortgage","Other financial service","Payday loan","Prepaid card","Student loan"];
 
-  var nested = d3.nest()
-    .key(function (d){ return d[areaColumn]; })
-    .entries(data);
+  for(var j=0;j<dataset.length;j++){
+    for(var k in keys){
+      if (!dataset[j].hasOwnProperty(keys[k])) {
+        dataset[j][keys[k]] = 0;
+      }
+    }
+  };
 
-  var layers = stack(nested);
+  const stack = d3.stack()
+  .keys(keys);
 
-  xScale.domain(d3.extent(data, function (d){ return d[xValue]; }));
+  const area = d3.area()
+  .x(function(d) { return xScale(d.data.date); })
+  .y0(function(d) { return yScale(d[0]); })
+  .y1(function(d) { return yScale(d[1]); })
+  .curve(d3.curveBasis);
+
+  //console.log(dataset)
+  const layers = stack(dataset);
+
+  //console.log(keys);
+  //console.log(layers);
+  xScale
+    .domain(d3.extent(dataset, function(d) {return d.date;}))
+    .range([0, innerWidth]);
+
   yScale.domain([
-    0,
-    d3.max(layers, function (layer){
-      return d3.max(layer.values, function (d){
-        return d.y0 + d.y;
+    d3.min(layers, function (series) {
+              return d3.min(series, function (d) { return d[0]; });
+            }),
+            d3.max(layers, function (series) {
+              return d3.max(series, function (d) { return d[1]; });
+            })
+          ])
+    .range([innerHeight, 0])
+    .nice();
+
+  colorScale.domain(keys);
+
+  var activeProduct;
+
+  var paths = marksG.selectAll('path').data(layers);
+
+
+  var pathsEnter = paths
+    .enter().append('path');
+  pathsEnter.merge(paths)
+    .attr('fill', function (d) { return colorScale(d.key); })
+    .attr('d', area);
+
+  pathsEnter
+    .on("mouseover", function(d){
+      activeProduct = d.key;
+
+      var xPosition = innerWidth/2 - 100;
+      var yPosition = 20 - margin.top ;
+
+      marksG.append("text")
+      .attr("id", "hoverLabel")
+      .attr("x", xPosition)
+      .attr("y", yPosition)
+      .attr("text-anchor", "start")
+      .attr("font-family", "ff-nuvo-sc-web-pro-1,ff-nuvo-sc-web-pro-2, sans-serif") 
+      .attr("font-size", "20px")
+      .text( activeProduct); 
+
+      d3.selectAll("rect")
+      .classed("barLight", function(d) {
+        if ( d.key == activeProduct) return true;
+        else return false;
       });
-    })
-  ]);
+
+    }) // end of .on mouseover
+
+    .on("mouseout", function() {
+      d3.select("#hoverLabel").remove();
+
+      d3.selectAll("rect")
+      .attr("class", "barBase");
+
+    });
+    
+
 
   xAxisG.call(xAxis);
   yAxisG.call(yAxis);
-
-  colorScale.domain(nested.map(function (d){ return d.key; }));
-
-  var paths = g.selectAll(".chart-area").data(layers);
-  paths.enter().append("path").attr("class", "chart-line");
-  paths.exit().remove();
-  paths
-    .attr("d", function (d){ return area(d.values); })
-    .attr("fill", function (d){ return colorScale(d.key); });
 
   colorLegendG.call(colorLegend);
 });
 
 
 
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+const xScale = d3.scaleBand();
+
+const yScale = d3.scaleLinear();
+
+const colorScale = d3.scaleOrdinal(d3.schemeCategory20);
+
+const xAxis = d3.axisBottom()
+  .scale(xScale);
+
+const yAxis = d3.axisLeft()
+  .scale(yScale)
+  .tickPadding(15);
+
+const colorLegend = d3.legendColor()
+  .scale(colorScale)
+  .shapePadding(3)
+  .shapeWidth(15)
+  .shapeHeight(15)
+  .labelOffset(4);
+
+/* harmony default export */ __webpack_exports__["a"] = (function (svg, props) {
+  const { 
+    data2,
+    xValue,
+    xLabel,
+    yValue,
+    yLabel,
+    colorValue,
+    colorLabel,
+    margin
+  } = props;
+
+  svg.selectAll("*").remove();
+  const layerColumn = colorValue;
+  
+  //svg = d3.select('svg');
+  const width = svg.attr('width');
+  const height = svg.attr('height');
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+
+  let g = svg.selectAll('.container').data([null]);
+  const gEnter = g.enter().append('g').attr('class','container');
+  g = gEnter
+    .merge(g)
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // const g = svg.append('g')
+  //           .attr('transform', `translate(${margin.left},${margin.top - 12})`);
+
+  const xAxisGEnter = gEnter.append('g').attr('class','x-axis');
+  const xAxisG = xAxisGEnter
+    .merge(g.select('.x-axis'))
+      .attr("transform", `translate(0, ${innerHeight})`);
+
+  // const xAxisG = g.append('g').attr('transform', `translate(0, ${innerHeight -3})`);
+  // const yAxisG = g.append('g');
+
+  const yAxisGEnter = gEnter.append('g').attr('class','y-axis');
+  const yAxisG = yAxisGEnter.merge(g.select('.y-axis'));
+
+
+  const colorLegendGEnter = gEnter.append('g').attr('class', 'legend');
+  const colorLegendG = colorLegendGEnter
+    .merge(g.select('.legend'))
+      .attr('transform', `translate(${innerWidth + 60}, 50)`);
+
+const barsG = g.append('g')
+
+xAxisGEnter
+.append('text')
+  .attr('class', 'axis-label')
+  .attr('y', 76)
+.merge(xAxisG.select('.axis-label'))
+  .attr('x', innerWidth / 2);
+
+// xAxisG.append('text')
+//     .attr('class', 'axis-label')
+//     .attr('x', innerWidth / 2)
+//     .attr('y', 76);
+
+yAxisGEnter
+  .append('text')
+    .attr('class', 'axis-label')
+    .attr('y', -60)
+    .style('text-anchor', 'middle')
+  .merge(yAxisG.select('.axis-label'))
+    .attr('x', -innerHeight / 2 - 3)
+    .attr('transform', `rotate(-90)`)
+    .text(yLabel);
+
+  // yAxisG.append('text')
+  //   .attr('class', 'axis-label')
+  //   .attr('x', -innerHeight / 2 - 3)
+  //   .attr('y', -57)
+  //   .attr('transform', `rotate(-90)`)
+  //   .style('text-anchor', 'middle')
+  //   .text(yLabel);
+
+colorLegendGEnter
+    .append('text')
+      .attr('class', 'legend-label')
+      .attr('x', -30)
+      .attr('y', -40)
+    .merge(colorLegendG.select('legend-label'));
+
+  // var colorLegendG = g.append("g")
+  //   .attr("class", "color-legend")
+  //   .attr('transform', `translate(${innerWidth + 60}, 150)`);
+
+  xAxis.tickSize(-innerHeight);
+  yAxis.tickSize(-innerWidth);
+
+
+  var dataset = data2.map(function(d){ 
+  var ob = { issue: d.issue};
+    var i = 0;
+    for (; i < d.product.length; i++){
+    ob[d.product[i].key] = d.product[i].value;
+  }
+
+  return ob; 
+});
+
+
+  const keys = ["Bank account or service","Consumer Loan","Credit card","Credit reporting","Debt collection","Money transfers",
+  "Mortgage","Other financial service","Payday loan","Prepaid card","Student loan"];
+
+  for(var j=0;j<dataset.length;j++){
+    for(var k in keys){
+      if (!dataset[j].hasOwnProperty(keys[k])) {
+        dataset[j][keys[k]] = 0;
+      }
+    }
+  };
+
+  console.log(dataset)
+  
+  var stack = d3.stack()
+    .keys(keys);
+
+  var stacked = stack(dataset);
+  console.log(stacked)
+
+  xScale
+    .domain(data2.map(function (d) { return d.issue; }))
+    .range([0, innerWidth]);
+
+  yScale
+    .domain([0, d3.max(stacked.map(function (d){
+      return d3.max(d, function (d){ return d[1];});
+    }))])
+    .range([innerHeight, 0])
+    .nice();
+
+  colorScale
+    .domain(keys)
+
+  xAxisG.call(xAxis);
+  xAxisG.selectAll('.tick text')
+    .attr('transform', 'rotate(-45)')
+    .attr('text-anchor', 'end')
+    .attr('alignment-baseline', 'middle')
+    .attr('x', -5)
+    .attr('y', 6)
+    .attr('dy', 0);
+
+
+  yAxisG.call(yAxis);
+
+  var groups = barsG.selectAll('g')
+    .data(stacked)
+    .enter()
+    .append("g")
+    .style('fill', function(d) { return colorScale(d.key); });
+    
+  var rects = groups.selectAll('rect')
+    .data(function (d) { return d; })
+    .enter()
+    .append("rect")
+    .attr('width', xScale.bandwidth())
+    .attr('x', function(d){return xScale(d.data.issue);})
+    .attr('y', function (d) { return yScale(d[1]); })
+    .attr('height', function (d) { return yScale(d[0]) - yScale(d[1]); });
+
+  colorLegendG.call(colorLegend);
+
+
+});
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const xScale = d3.scaleBand();
+
+const yScale = d3.scaleLinear();
+
+const colorScale = d3.scaleOrdinal(d3.schemeCategory20);
+
+const xAxis = d3.axisBottom()
+  .scale(xScale);
+
+const yAxis = d3.axisLeft()
+  .scale(yScale)
+  .tickPadding(15);
+
+const colorLegend = d3.legendColor()
+  .scale(colorScale)
+  .shapePadding(3)
+  .shapeWidth(15)
+  .shapeHeight(15)
+  .labelOffset(4);
+
+
+/* harmony default export */ __webpack_exports__["a"] = (function (svg, props) {
+  const { 
+    data3,
+    xValue,
+    xLabel,
+    yValue,
+    yLabel,
+    colorValue,
+    colorLabel,
+    margin
+  } = props;
+
+  svg.selectAll("*").remove();
+  const layerColumn = colorValue;
+  
+  //svg = d3.select('svg');
+  const width = svg.attr('width');
+  const height = svg.attr('height');
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+
+  let g = svg.selectAll('.container').data([null]);
+  const gEnter = g.enter().append('g').attr('class','container');
+  g = gEnter
+    .merge(g)
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // const g = svg.append('g')
+  //           .attr('transform', `translate(${margin.left},${margin.top - 12})`);
+
+  const xAxisGEnter = gEnter.append('g').attr('class','x-axis');
+  const xAxisG = xAxisGEnter
+    .merge(g.select('.x-axis'))
+      .attr("transform", `translate(0, ${innerHeight})`);
+
+  // const xAxisG = g.append('g').attr('transform', `translate(0, ${innerHeight -3})`);
+  // const yAxisG = g.append('g');
+
+  const yAxisGEnter = gEnter.append('g').attr('class','y-axis');
+  const yAxisG = yAxisGEnter.merge(g.select('.y-axis'));
+
+
+  const colorLegendGEnter = gEnter.append('g').attr('class', 'legend');
+  const colorLegendG = colorLegendGEnter
+    .merge(g.select('.legend'))
+      .attr('transform', `translate(${innerWidth + 60}, 50)`);
+
+const barsG = g.append('g')
+
+xAxisGEnter
+.append('text')
+  .attr('class', 'axis-label')
+  .attr('y', 76)
+.merge(xAxisG.select('.axis-label'))
+  .attr('x', innerWidth / 2);
+
+// xAxisG.append('text')
+//     .attr('class', 'axis-label')
+//     .attr('x', innerWidth / 2)
+//     .attr('y', 76);
+
+yAxisGEnter
+  .append('text')
+    .attr('class', 'axis-label')
+    .attr('y', -60)
+    .style('text-anchor', 'middle')
+  .merge(yAxisG.select('.axis-label'))
+    .attr('x', -innerHeight / 2 - 3)
+    .attr('transform', `rotate(-90)`)
+    .text(yLabel);
+
+  // yAxisG.append('text')
+  //   .attr('class', 'axis-label')
+  //   .attr('x', -innerHeight / 2 - 3)
+  //   .attr('y', -57)
+  //   .attr('transform', `rotate(-90)`)
+  //   .style('text-anchor', 'middle')
+  //   .text(yLabel);
+
+colorLegendGEnter
+    .append('text')
+      .attr('class', 'legend-label')
+      .attr('x', -30)
+      .attr('y', -40)
+    .merge(colorLegendG.select('legend-label'));
+
+  // var colorLegendG = g.append("g")
+  //   .attr("class", "color-legend")
+  //   .attr('transform', `translate(${innerWidth + 60}, 150)`);
+
+  xAxis.tickSize(-innerHeight);
+  yAxis.tickSize(-innerWidth);
+
+
+  var dataset = data3.map(function(d){ 
+  var ob = { company: d.company};
+    var i = 0;
+    for (; i < d.product.length; i++){
+    ob[d.product[i].key] = d.product[i].value;
+  }
+
+  return ob; 
+});
+
+
+  const keys = ["Bank account or service","Consumer Loan","Credit card","Credit reporting","Debt collection","Money transfers",
+  "Mortgage","Other financial service","Payday loan","Prepaid card","Student loan"];
+
+  for(var j=0;j<dataset.length;j++){
+    for(var k in keys){
+      if (!dataset[j].hasOwnProperty(keys[k])) {
+        dataset[j][keys[k]] = 0;
+      }
+    }
+  };
+
+  console.log(dataset)
+  
+  var stack = d3.stack()
+    .keys(keys);
+
+  var stacked = stack(dataset);
+  console.log(stacked)
+
+  xScale
+    .domain(data3.map(function (d) { return d.company; }))
+    .range([0, innerWidth]);
+
+  yScale
+    .domain([0, d3.max(stacked.map(function (d){
+      return d3.max(d, function (d){ return d[1];});
+    }))])
+    .range([innerHeight, 0])
+    .nice();
+
+  colorScale
+    .domain(keys)
+
+  xAxisG.call(xAxis);
+  //xAxisG.selectAll('.tick line').remove();
+  xAxisG.selectAll('.tick text')
+    .attr('transform', 'rotate(-40)')
+    .attr('text-anchor', 'end')
+    .attr('alignment-baseline', 'middle')
+    .attr('x', -5)
+    .attr('y', 6)
+    .attr('dy', 0);
+
+
+  yAxisG.call(yAxis);
+
+  var groups = barsG.selectAll('g')
+    .data(stacked)
+    .enter()
+    .append("g")
+    .style('fill', function(d) { return colorScale(d.key); });
+    
+  var rects = groups.selectAll('rect')
+    .data(function (d) { return d; })
+    .enter()
+    .append("rect")
+    .attr('width', xScale.bandwidth())
+    .attr('x', function(d){return xScale(d.data.company);})
+    .attr('y', function (d) { return yScale(d[1]); })
+    .attr('height', function (d) { return yScale(d[0]) - yScale(d[1]); });
+
+  colorLegendG.call(colorLegend)
+      .selectAll('.cell text')
+      .attr('dy', '0.1em');
+
+  var activeProduct;
+  rects.selectAll("rect")
+    .on("mouseover",function(d){
+      activeProduct = d.key;
+    }) // end of .on mouseover
+
+    .on("mouseout", function() {
+      d3.select("#hoverLabel").remove();
+
+      d3.selectAll("rect")
+      .attr("class", "barBase");
+
+    })
+
+      
+
+});
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const xScale = d3.scaleBand();
+
+const yScale = d3.scaleLinear();
+
+const colorScale = d3.scaleOrdinal(d3.schemeCategory20);
+
+const xAxis = d3.axisBottom()
+  .scale(xScale);
+
+const yAxis = d3.axisLeft()
+  .scale(yScale)
+  .tickPadding(15);
+
+const colorLegend = d3.legendColor()
+  .scale(colorScale)
+  .shapePadding(3)
+  .shapeWidth(15)
+  .shapeHeight(15)
+  .labelOffset(4);
+
+
+/* harmony default export */ __webpack_exports__["a"] = (function (svg, props) {
+  const { 
+    data4,
+    xValue,
+    xLabel,
+    yValue,
+    yLabel,
+    colorValue,
+    colorLabel,
+    margin
+  } = props;
+
+  svg.selectAll("*").remove();
+  const layerColumn = colorValue;
+  
+  //svg = d3.select('svg');
+  const width = svg.attr('width');
+  const height = svg.attr('height');
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+
+  let g = svg.selectAll('.container').data([null]);
+  const gEnter = g.enter().append('g').attr('class','container');
+  g = gEnter
+    .merge(g)
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // const g = svg.append('g')
+  //           .attr('transform', `translate(${margin.left},${margin.top - 12})`);
+
+  const xAxisGEnter = gEnter.append('g').attr('class','x-axis');
+  const xAxisG = xAxisGEnter
+    .merge(g.select('.x-axis'))
+      .attr("transform", `translate(0, ${innerHeight})`);
+
+  // const xAxisG = g.append('g').attr('transform', `translate(0, ${innerHeight -3})`);
+  // const yAxisG = g.append('g');
+
+  const yAxisGEnter = gEnter.append('g').attr('class','y-axis');
+  const yAxisG = yAxisGEnter.merge(g.select('.y-axis'));
+
+
+  const colorLegendGEnter = gEnter.append('g').attr('class', 'legend');
+  const colorLegendG = colorLegendGEnter
+    .merge(g.select('.legend'))
+      .attr('transform', `translate(${innerWidth + 60}, 50)`);
+
+const barsG = g.append('g')
+
+xAxisGEnter
+.append('text')
+  .attr('class', 'axis-label')
+  .attr('y', 76)
+.merge(xAxisG.select('.axis-label'))
+  .attr('x', innerWidth / 2);
+
+// xAxisG.append('text')
+//     .attr('class', 'axis-label')
+//     .attr('x', innerWidth / 2)
+//     .attr('y', 76);
+
+yAxisGEnter
+  .append('text')
+    .attr('class', 'axis-label')
+    .attr('y', -60)
+    .style('text-anchor', 'middle')
+  .merge(yAxisG.select('.axis-label'))
+    .attr('x', -innerHeight / 2 - 3)
+    .attr('transform', `rotate(-90)`)
+    .text(yLabel);
+
+  // yAxisG.append('text')
+  //   .attr('class', 'axis-label')
+  //   .attr('x', -innerHeight / 2 - 3)
+  //   .attr('y', -57)
+  //   .attr('transform', `rotate(-90)`)
+  //   .style('text-anchor', 'middle')
+  //   .text(yLabel);
+
+colorLegendGEnter
+    .append('text')
+      .attr('class', 'legend-label')
+      .attr('x', -30)
+      .attr('y', -40)
+    .merge(colorLegendG.select('legend-label'));
+
+  // var colorLegendG = g.append("g")
+  //   .attr("class", "color-legend")
+  //   .attr('transform', `translate(${innerWidth + 60}, 150)`);
+
+  xAxis.tickSize(-innerHeight);
+  yAxis.tickSize(-innerWidth);
+
+
+  var dataset = data4.map(function(d){ 
+  var ob = { state: d.state};
+    var i = 0;
+    for (; i < d.product.length; i++){
+    ob[d.product[i].key] = d.product[i].value;
+  }
+
+  return ob; 
+});
+
+
+  const keys = ["Bank account or service","Consumer Loan","Credit card","Credit reporting","Debt collection","Money transfers",
+  "Mortgage","Other financial service","Payday loan","Prepaid card","Student loan"];
+
+  for(var j=0;j<dataset.length;j++){
+    for(var k in keys){
+      if (!dataset[j].hasOwnProperty(keys[k])) {
+        dataset[j][keys[k]] = 0;
+      }
+    }
+  };
+
+  console.log(dataset)
+  
+  var stack = d3.stack()
+    .keys(keys);
+
+  var stacked = stack(dataset);
+  console.log(stacked)
+
+  xScale
+    .domain(data4.map(function (d) { return d.state; }))
+    .range([0, innerWidth]);
+
+  yScale
+    .domain([0, d3.max(stacked.map(function (d){
+      return d3.max(d, function (d){ return d[1];});
+    }))])
+    .range([innerHeight, 0])
+    .nice();
+
+  colorScale
+    .domain(keys)
+
+  xAxisG.call(xAxis);
+  //xAxisG.selectAll('.tick line').remove();
+  xAxisG.selectAll('.tick text')
+    .attr('transform', 'rotate(-40)')
+    .attr('text-anchor', 'end')
+    .attr('alignment-baseline', 'middle')
+    .attr('x', -5)
+    .attr('y', 6)
+    .attr('dy', 0);
+
+
+  yAxisG.call(yAxis);
+
+  var groups = barsG.selectAll('g')
+    .data(stacked)
+    .enter()
+    .append("g")
+    .style('fill', function(d) { return colorScale(d.key); });
+    
+  var rects = groups.selectAll('rect')
+    .data(function (d) { return d; })
+    .enter()
+    .append("rect")
+    .attr('width', xScale.bandwidth())
+    .attr('x', function(d){return xScale(d.data.state);})
+    .attr('y', function (d) { return yScale(d[1]); })
+    .attr('height', function (d) { return yScale(d[0]) - yScale(d[1]); });
+
+  colorLegendG.call(colorLegend)
+      .selectAll('.cell text')
+      .attr('dy', '0.1em');
+
+  var activeProduct;
+  rects.selectAll("rect")
+    .on("mouseover",function(d){
+      activeProduct = d.key;
+    }) // end of .on mouseover
+
+    .on("mouseout", function() {
+      d3.select("#hoverLabel").remove();
+
+      d3.selectAll("rect")
+      .attr("class", "barBase");
+
+    })
+
+      
+
+});
 
 /***/ })
 /******/ ]);
