@@ -6,12 +6,10 @@ const yScale = d3.scaleLinear();
 const colorScale = d3.scaleOrdinal(d3.schemeCategory20);
 
 const xAxis = d3.axisBottom()
-  .scale(xScale)
-  .tickSize(-innerHeight);
+  .scale(xScale);
 
 const yAxis = d3.axisLeft()
   .scale(yScale)
-  .tickSize(-innerWidth)
   .tickPadding(15);
 
 const colorLegend = d3.legendColor()
@@ -33,6 +31,7 @@ export default function (svg, props) {
     margin
   } = props;
 
+  svg.selectAll("*").remove();
   const layerColumn = colorValue;
   
   //svg = d3.select('svg');
@@ -41,32 +40,77 @@ export default function (svg, props) {
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
-  const g = svg.append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`);
+  let g = svg.selectAll('.container').data([null]);
+  const gEnter = g.enter().append('g').attr('class','container');
+  g = gEnter
+    .merge(g)
+      .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  const xAxisG = g.append('g').attr('transform', `translate(0, ${innerHeight})`);
-  const yAxisG = g.append('g');
+  // const g = svg.append('g')
+  //           .attr('transform', `translate(${margin.left},${margin.top - 12})`);
 
-  //g.append("g");
-  const barsG = g.append('g')
+  const xAxisGEnter = gEnter.append('g').attr('class','x-axis');
+  const xAxisG = xAxisGEnter
+    .merge(g.select('.x-axis'))
+      .attr("transform", `translate(0, ${innerHeight})`);
 
-  xAxisG.append('text')
+  // const xAxisG = g.append('g').attr('transform', `translate(0, ${innerHeight -3})`);
+  // const yAxisG = g.append('g');
+
+  const yAxisGEnter = gEnter.append('g').attr('class','y-axis');
+  const yAxisG = yAxisGEnter.merge(g.select('.y-axis'));
+
+
+  const colorLegendGEnter = gEnter.append('g').attr('class', 'legend');
+  const colorLegendG = colorLegendGEnter
+    .merge(g.select('.legend'))
+      .attr('transform', `translate(${innerWidth + 60}, 50)`);
+
+const barsG = g.append('g')
+
+xAxisGEnter
+.append('text')
+  .attr('class', 'axis-label')
+  .attr('y', 76)
+.merge(xAxisG.select('.axis-label'))
+  .attr('x', innerWidth / 2);
+
+// xAxisG.append('text')
+//     .attr('class', 'axis-label')
+//     .attr('x', innerWidth / 2)
+//     .attr('y', 76);
+
+yAxisGEnter
+  .append('text')
     .attr('class', 'axis-label')
-    .attr('x', innerWidth / 2)
-    .attr('y', 76)
-    .text(xLabel);
-
-  yAxisG.append('text')
-    .attr('class', 'axis-label')
-    .attr('x', -innerHeight / 2 - 3)
-    .attr('y', -57)
-    .attr('transform', `rotate(-90)`)
+    .attr('y', -60)
     .style('text-anchor', 'middle')
+  .merge(yAxisG.select('.axis-label'))
+    .attr('x', -innerHeight / 2 - 3)
+    .attr('transform', `rotate(-90)`)
     .text(yLabel);
 
-  var colorLegendG = g.append("g")
-    .attr("class", "color-legend")
-    .attr("transform", "translate(620,14)");
+  // yAxisG.append('text')
+  //   .attr('class', 'axis-label')
+  //   .attr('x', -innerHeight / 2 - 3)
+  //   .attr('y', -57)
+  //   .attr('transform', `rotate(-90)`)
+  //   .style('text-anchor', 'middle')
+  //   .text(yLabel);
+
+colorLegendGEnter
+    .append('text')
+      .attr('class', 'legend-label')
+      .attr('x', -30)
+      .attr('y', -40)
+    .merge(colorLegendG.select('legend-label'));
+
+  // var colorLegendG = g.append("g")
+  //   .attr("class", "color-legend")
+  //   .attr('transform', `translate(${innerWidth + 60}, 150)`);
+
+  xAxis.tickSize(-innerHeight);
+  yAxis.tickSize(-innerWidth);
 
 
   var dataset = data2.map(function(d){ 
@@ -81,7 +125,7 @@ export default function (svg, props) {
 
 
   const keys = ["Bank account or service","Consumer Loan","Credit card","Credit reporting","Debt collection","Money transfers",
-  "Mortgage","Other financial service","Payday loan","Prepaid card","Student loan","Virtual currency"];
+  "Mortgage","Other financial service","Payday loan","Prepaid card","Student loan"];
 
   for(var j=0;j<dataset.length;j++){
     for(var k in keys){
@@ -114,6 +158,13 @@ export default function (svg, props) {
     .domain(keys)
 
   xAxisG.call(xAxis);
+  xAxisG.selectAll('.tick text')
+    .attr('transform', 'rotate(-45)')
+    .attr('text-anchor', 'end')
+    .attr('alignment-baseline', 'middle')
+    .attr('x', -5)
+    .attr('y', 6)
+    .attr('dy', 0);
 
 
   yAxisG.call(yAxis);
@@ -133,9 +184,7 @@ export default function (svg, props) {
     .attr('y', function (d) { return yScale(d[1]); })
     .attr('height', function (d) { return yScale(d[0]) - yScale(d[1]); });
 
-  colorLegendG.call(colorLegend)
-      .selectAll('.cell text')
-      .attr('dy', '0.1em');
+  colorLegendG.call(colorLegend);
 
 
 }

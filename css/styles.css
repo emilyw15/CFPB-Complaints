@@ -9,20 +9,60 @@ body {
 }
 .tick text, .legendCells text {
   fill: #8E8883;
-  font-size: 10pt;
+  font-size: 8pt;
   font-family: sans-serif;
 }
 .axis-label, .legend-label {
   fill: #635F5D;
-  font-size: 50pt;
+  font-size: 20pt;
   font-family: sans-serif;
 }
 
+.stacked-vis {
+  min-height: 300px;
+}
+
+path:hover, rect:hover{
+  fill: black;
+  fill-opacity: 1;
+}
+
+.barLight {
+  fill: #2E2E31;
+}
+
+#hoverlabel {
+  font-family: "ff-nuvo-sc-web-pro-1","ff-nuvo-sc-web-pro-2", sans-serif;
+  fill: #496d64;
+  font-size: 15px;
+  color: #808080;
+  text-anchor: start;
+}
+
+.pathLight {
+  stroke: black;
+  opacity: 1;
+}
+
+.pathBase {
+  stroke: #888;
+  opacity: 0.2;
+}
+
+
 /* Make the chart container fill the page using CSS. */
-#visualization {
+/*#visualization {
   position: fixed;
   left: 0px;
   right: 0px;
   top: 0px;
-  bottom: 0px;
+  bottom: 50%;
 }
+#visualization2 {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 50%;
+  bottom: 0px;
+}*/
+
