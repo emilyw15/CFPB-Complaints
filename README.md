@@ -59,4 +59,4 @@ Some early prototypes of visualization using this data can be found on [bl.ocks.
 - [Summary of CFPB Data](https://bl.ocks.org/emilyw15/553e8acc8bccf2a4237a3e977e70568d)
 - [Line chart of Student Loan Complaints](https://bl.ocks.org/emilyw15/b8fe8d2b0c9ae26f8d7fd4758a780737)
 - [Multi-Line chart of all products](https://bl.ocks.org/emilyw15/a3f1d922d616a9a5f88c3c71af1408d2)
--[Scatter plot of all products](https://bl.ocks.org/emilyw15/4fe109b3c8eebc1996bcae158b7aab89)
+- [Scatter plot of all products](https://bl.ocks.org/emilyw15/4fe109b3c8eebc1996bcae158b7aab89)
