@@ -1,5 +1,5 @@
 
-## Consumer Financial Protection Bureau Complaints Visualization
+# Consumer Financial Protection Bureau Complaints Visualization
 
 The visualization can be seen [here](https://emilyw15.github.io/CFPB-Complaints/).
 
@@ -42,7 +42,7 @@ To work with the data I only kept the columns that were necessary for my visuali
 
 While making the visualizations, I aggregated the data even more using d3.nest(), grouping by only the columns I needed for that visualization. 
 
-# Visualizations and Interactions
+## Visualizations and Interactions
 
 The first visualization on the page is a stacked area chart. This visualization was made to answer the first question above. The x-axis is dates by month for each year and the y-axis is complaint count. The color of the areas repersent the different products. From this chart, the viewer can see that the CFPB began by only recieving complaints for Mortgages and Credit cards, as time goes on each of the products were added. The chart also shows that the complaints the CFPB recieves the most of is Mortgage, followed by Credit reporting later on. The interaction with this chart is when the user hovers over each area the product of that area appears at the top of the graph. (I'm hoping to add another interaction if I have time)  
 
