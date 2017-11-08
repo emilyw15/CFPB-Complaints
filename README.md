@@ -1,9 +1,9 @@
 
-## Consumer Financial Protection Bureau Complaints Visualization
+##Consumer Financial Protection Bureau Complaints Visualization
 
 The visualization can be seen [here](https://emilyw15.github.io/CFPB-Complaints/).
 
-# Overview
+## Overview
 
 This visualization shows data from the Consumer Financial Protection Bureau (CFPB) [public complaints database](https://catalog.data.gov/dataset/consumer-complaint-database). Each chart shows a diiferent breakdown of the complaints based on Date, Issue, Company, and State and how many complaints each of the breakdowns received. 
 
@@ -13,7 +13,7 @@ To help make this visualization, I started with the following questions:
 - What companies receive the most complaints?
 - What are the most common breakdowns of product and issue?
 
-# Data, Cleaning, and Aggregation
+## Data, Cleaning, and Aggregation
 
 The original dataset contains data from 2011 – 2017. There are 14 columns that describe a complaint submitted to the CFPB. A complaint can have a product, sub-product, issue and sub-issue. Complaints are also associated with a company, a state where the complaint is from and the company response for the complaint. 
 The 14 columns are as followed:
@@ -52,7 +52,7 @@ The third visualization on the page is also a stacked bar chart. This visualizat
 
 The fourth visualization on the page is also a stacked bar chart. This visualization was made to answer the fourth question above. The x-axis is state and the y-axis is complaint count. The color of the bars repersent the different products. From this chart, the viewer can see that all the states send in complaints for most products. The chart also shows that California and Florida send the most complaints to the CFPB. It is interesting that almost half of the complaints that California sends are about mortgages, while most other states send equal amounts of complaints for each product. The interaction with this chart is when the user hovers over each bar, a tooltip appears to tell the user how many complaints were sent in for that product-issue pair. (I'm hoping to add another interaction if I have time)  
 
-# Early Prototypes
+## Early Prototypes
 
 Some early prototypes of visualization using this data can be found on [bl.ocks.org](https://bl.ocks.org/emilyw15). These visualizations were made using data from January, Feburary and March 2017
 
