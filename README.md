@@ -1,5 +1,5 @@
 
-##Consumer Financial Protection Bureau Complaints Visualization
+## Consumer Financial Protection Bureau Complaints Visualization
 
 The visualization can be seen [here](https://emilyw15.github.io/CFPB-Complaints/).
 
