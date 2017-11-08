@@ -407,7 +407,8 @@ const yAxisLabelOffset = 60;
 
   var activeProduct;
 
-  var paths = marksG.selectAll('path').data(layers);
+  var paths = marksG.selectAll('path').data(layers)
+    .attr("class","work");
 
 
   var pathsEnter = paths
@@ -649,9 +650,31 @@ colorLegendGEnter
     .attr('y', function (d) { return yScale(d[1]); })
     .attr('height', function (d) { return yScale(d[0]) - yScale(d[1]); });
 
+
   colorLegendG.call(colorLegend);
 
+  rects
+    .on("mouseover",function(d) {
+      var activeIssue = d.data.issue;
+      var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.bandwidth() / 2;
+      var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + innerHeight / 2 + 350;
+          //Update the tooltip position and value
 
+      d3.select("#tooltip")
+        .style("left", xPosition + "px")
+        .style("top", yPosition + "px")           
+        .select("#value")
+        .text(activeIssue + ": " + (d[1]-d[0]));
+         
+          //Show the tooltip
+      d3.select("#tooltip").classed("hidden", false);
+    })
+    .on("mouseout", function() {
+         
+          //Hide the tooltip
+      d3.select("#tooltip").classed("hidden", true);
+          
+    });
 });
 
 
@@ -729,6 +752,7 @@ const colorLegend = d3.legendColor()
       .attr('transform', `translate(${innerWidth + 60}, 50)`);
 
 const barsG = g.append('g')
+ 
 
 xAxisGEnter
 .append('text')
@@ -851,19 +875,28 @@ colorLegendGEnter
       .selectAll('.cell text')
       .attr('dy', '0.1em');
 
-  var activeProduct;
-  rects.selectAll("rect")
-    .on("mouseover",function(d){
-      activeProduct = d.key;
-    }) // end of .on mouseover
+  rects
+  .on("mouseover",function(d) {
+    var activeCompany = d.data.company;
+    var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.bandwidth() / 2;
+    var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + innerHeight / 2 + 700;
+        //Update the tooltip position and value
 
-    .on("mouseout", function() {
-      d3.select("#hoverLabel").remove();
-
-      d3.selectAll("rect")
-      .attr("class", "barBase");
-
-    })
+    d3.select("#tooltip")
+      .style("left", xPosition + "px")
+      .style("top", yPosition + "px")           
+      .select("#value")
+      .text(activeCompany + ": " + (d[1]-d[0]));
+       
+        //Show the tooltip
+    d3.select("#tooltip").classed("hidden", false);
+  })
+  .on("mouseout", function() {
+       
+        //Hide the tooltip
+    d3.select("#tooltip").classed("hidden", true);
+        
+  });
 
       
 
@@ -1065,19 +1098,28 @@ colorLegendGEnter
       .selectAll('.cell text')
       .attr('dy', '0.1em');
 
-  var activeProduct;
-  rects.selectAll("rect")
-    .on("mouseover",function(d){
-      activeProduct = d.key;
-    }) // end of .on mouseover
+  rects
+  .on("mouseover",function(d) {
+    var activeState = d.data.state;
+    var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.bandwidth() / 2;
+    var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + innerHeight / 2 + 1050;
+        //Update the tooltip position and value
 
-    .on("mouseout", function() {
-      d3.select("#hoverLabel").remove();
-
-      d3.selectAll("rect")
-      .attr("class", "barBase");
-
-    })
+    d3.select("#tooltip")
+      .style("left", xPosition + "px")
+      .style("top", yPosition + "px")           
+      .select("#value")
+      .text(activeState + ": " + (d[1]-d[0]));
+       
+        //Show the tooltip
+    d3.select("#tooltip").classed("hidden", false);
+  })
+  .on("mouseout", function() {
+       
+        //Hide the tooltip
+    d3.select("#tooltip").classed("hidden", true);
+        
+  });
 
       
 
