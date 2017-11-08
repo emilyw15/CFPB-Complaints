@@ -189,19 +189,28 @@ colorLegendGEnter
       .selectAll('.cell text')
       .attr('dy', '0.1em');
 
-  var activeProduct;
-  rects.selectAll("rect")
-    .on("mouseover",function(d){
-      activeProduct = d.key;
-    }) // end of .on mouseover
+  rects
+  .on("mouseover",function(d) {
+    var activeState = d.data.state;
+    var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.bandwidth() / 2;
+    var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + innerHeight / 2 + 1050;
+        //Update the tooltip position and value
 
-    .on("mouseout", function() {
-      d3.select("#hoverLabel").remove();
-
-      d3.selectAll("rect")
-      .attr("class", "barBase");
-
-    })
+    d3.select("#tooltip")
+      .style("left", xPosition + "px")
+      .style("top", yPosition + "px")           
+      .select("#value")
+      .text(activeState + ": " + (d[1]-d[0]));
+       
+        //Show the tooltip
+    d3.select("#tooltip").classed("hidden", false);
+  })
+  .on("mouseout", function() {
+       
+        //Hide the tooltip
+    d3.select("#tooltip").classed("hidden", true);
+        
+  });
 
       
 

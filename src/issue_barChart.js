@@ -184,7 +184,29 @@ colorLegendGEnter
     .attr('y', function (d) { return yScale(d[1]); })
     .attr('height', function (d) { return yScale(d[0]) - yScale(d[1]); });
 
+
   colorLegendG.call(colorLegend);
 
+  rects
+    .on("mouseover",function(d) {
+      var activeIssue = d.data.issue;
+      var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.bandwidth() / 2;
+      var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + innerHeight / 2 + 350;
+          //Update the tooltip position and value
 
+      d3.select("#tooltip")
+        .style("left", xPosition + "px")
+        .style("top", yPosition + "px")           
+        .select("#value")
+        .text(activeIssue + ": " + (d[1]-d[0]));
+         
+          //Show the tooltip
+      d3.select("#tooltip").classed("hidden", false);
+    })
+    .on("mouseout", function() {
+         
+          //Hide the tooltip
+      d3.select("#tooltip").classed("hidden", true);
+          
+    });
 }

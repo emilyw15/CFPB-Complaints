@@ -156,7 +156,8 @@ export default function (svg, props) {
 
   var activeProduct;
 
-  var paths = marksG.selectAll('path').data(layers);
+  var paths = marksG.selectAll('path').data(layers)
+    .attr("class","work");
 
 
   var pathsEnter = paths
