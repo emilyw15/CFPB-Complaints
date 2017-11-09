@@ -407,8 +407,7 @@ const yAxisLabelOffset = 60;
 
   var activeProduct;
 
-  var paths = marksG.selectAll('path').data(layers)
-    .attr("class","work");
+  var paths = marksG.selectAll('path').data(layers);
 
 
   var pathsEnter = paths
@@ -420,6 +419,7 @@ const yAxisLabelOffset = 60;
   pathsEnter
     .on("mouseover", function(d){
       activeProduct = d.key;
+      console.log(d)
 
       var xPosition = innerWidth/2 - 100;
       var yPosition = 20 - margin.top ;
@@ -433,19 +433,11 @@ const yAxisLabelOffset = 60;
       .attr("font-size", "20px")
       .text( activeProduct); 
 
-      d3.selectAll("rect")
-      .classed("barLight", function(d) {
-        if ( d.key == activeProduct) return true;
-        else return false;
-      });
 
     }) // end of .on mouseover
 
     .on("mouseout", function() {
       d3.select("#hoverLabel").remove();
-
-      d3.selectAll("rect")
-      .attr("class", "barBase");
 
     });
     
@@ -1067,14 +1059,6 @@ colorLegendGEnter
     .domain(keys)
 
   xAxisG.call(xAxis);
-  //xAxisG.selectAll('.tick line').remove();
-  xAxisG.selectAll('.tick text')
-    .attr('transform', 'rotate(-40)')
-    .attr('text-anchor', 'end')
-    .attr('alignment-baseline', 'middle')
-    .attr('x', -5)
-    .attr('y', 6)
-    .attr('dy', 0);
 
 
   yAxisG.call(yAxis);
