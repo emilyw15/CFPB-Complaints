@@ -158,14 +158,6 @@ colorLegendGEnter
     .domain(keys)
 
   xAxisG.call(xAxis);
-  //xAxisG.selectAll('.tick line').remove();
-  xAxisG.selectAll('.tick text')
-    .attr('transform', 'rotate(-40)')
-    .attr('text-anchor', 'end')
-    .attr('alignment-baseline', 'middle')
-    .attr('x', -5)
-    .attr('y', 6)
-    .attr('dy', 0);
 
 
   yAxisG.call(yAxis);

@@ -156,8 +156,7 @@ export default function (svg, props) {
 
   var activeProduct;
 
-  var paths = marksG.selectAll('path').data(layers)
-    .attr("class","work");
+  var paths = marksG.selectAll('path').data(layers);
 
 
   var pathsEnter = paths
@@ -169,6 +168,7 @@ export default function (svg, props) {
   pathsEnter
     .on("mouseover", function(d){
       activeProduct = d.key;
+      console.log(d)
 
       var xPosition = innerWidth/2 - 100;
       var yPosition = 20 - margin.top ;
@@ -182,19 +182,11 @@ export default function (svg, props) {
       .attr("font-size", "20px")
       .text( activeProduct); 
 
-      d3.selectAll("rect")
-      .classed("barLight", function(d) {
-        if ( d.key == activeProduct) return true;
-        else return false;
-      });
 
     }) // end of .on mouseover
 
     .on("mouseout", function() {
       d3.select("#hoverLabel").remove();
-
-      d3.selectAll("rect")
-      .attr("class", "barBase");
 
     });
     
